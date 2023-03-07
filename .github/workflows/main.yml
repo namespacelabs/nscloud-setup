@@ -21,7 +21,7 @@ jobs:
           nsc cluster create --wait_kube_system --output_to=/tmp/cluster_id.txt
       - name: Get pods
         run: |
-          nsc kubectl get pods -- -A
+          cat /tmp/cluster_id.txt | xargs -I % nsc kubectl % get pods -- -A
       - name: Destroy cluster
         run: |
-          cat /tmp/cluster_id.txt | xargs nsc cluster destroy --force
+          cat /tmp/cluster_id.txt | xargs -I % nsc cluster destroy % --force
