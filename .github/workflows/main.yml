@@ -16,12 +16,12 @@ jobs:
         uses: ./ # Uses an action in the root directory
       - name: Create a cluster
         run: |
-          touch ~/cluster_id.txt
+          touch /tmp/cluster_id.txt
 
-          nsc cluster create --output_to=~/cluster_id.txt
+          nsc cluster create --output_to=/tmp/cluster_id.txt
       - name: List clusters
         run: |
           nsc cluster list
       - name: Destroy cluster
         run: |
-          cat ~/cluster_id.txt | xargs nsc cluster destroy --force
+          cat /tmp/cluster_id.txt | xargs nsc cluster destroy --force
