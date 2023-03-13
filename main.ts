@@ -1,12 +1,17 @@
 import * as core from "@actions/core";
 import * as tc from "@actions/tool-cache";
 import * as exec from "@actions/exec";
+import * as fs from "fs";
+import * as path from "path";
 
 async function run(): Promise<void> {
 	try {
 		await installNsc();
 
 		await ensureFreshTenantToken();
+
+		const registry = await dockerLogin();
+		core.setOutput("registry-address", registry);
 	} catch (error) {
 		core.setFailed(error.message);
 	}
@@ -60,6 +65,23 @@ function getDownloadURL(): string {
 
 async function ensureFreshTenantToken() {
 	await exec.exec("nsc auth exchange-github-token");
+}
+
+async function dockerLogin() {
+	const out = tmpFile("registry.txt");
+	await exec.exec(`nsc cluster docker-login --output_registry_to=${out}`);
+
+	return fs.readFileSync(out, "utf8");
+}
+
+export function tmpFile(file: string): string {
+	const tmpDir = path.join(process.env.RUNNER_TEMP, "ns");
+
+	if (!fs.existsSync(tmpDir)) {
+		fs.mkdirSync(tmpDir);
+	}
+
+	return path.join(tmpDir, file);
 }
 
 run();

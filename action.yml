@@ -1,5 +1,8 @@
 name: '"Set up Namespace Cloud CLI" Action For GitHub Actions'
 description: "Download and configure the Namespace Cloud CLI"
+outputs:
+  registry-address:
+    description: "Endpoint address of the Namespace Cloud registry."
 runs:
   using: node16
   main: dist/main/index.js

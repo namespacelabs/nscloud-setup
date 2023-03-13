@@ -25,3 +25,20 @@ jobs:
       - name: Destroy cluster
         run: |
           cat /tmp/cluster_id.txt | xargs -I % nsc cluster destroy % --force
+
+  push_image:
+    runs-on: ubuntu-latest
+    name: Push an image to the Namespace Cloud registry
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Namespace Cloud CLI
+        id: nscloud
+        uses: ./ # Uses an action in the root directory
+      - name: Push to private registry
+        run: |
+          echo "Pushing to ${{ steps.nscloud.outputs.registry-address }}..."
+
+          docker pull alpine:3.17.2
+          docker tag alpine:3.17.2 ${{ steps.nscloud.outputs.registry-address }}/nscloud-alpine
+          docker push ${{ steps.nscloud.outputs.registry-address }}/nscloud-alpine
