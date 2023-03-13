@@ -69,7 +69,7 @@ async function ensureFreshTenantToken() {
 
 async function dockerLogin() {
 	const out = tmpFile("registry.txt");
-	await exec.exec("nsc cluster docker-login --output_registry_to=${out}");
+	await exec.exec(`nsc cluster docker-login --output_registry_to=${out}`);
 
 	return fs.readFileSync(out, "utf8");
 }

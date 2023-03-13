@@ -6845,7 +6845,7 @@ function ensureFreshTenantToken() {
 function dockerLogin() {
     return __awaiter(this, void 0, void 0, function* () {
         const out = tmpFile("registry.txt");
-        yield _actions_exec__WEBPACK_IMPORTED_MODULE_2__.exec("nsc cluster docker-login --output_registry_to=${out}");
+        yield _actions_exec__WEBPACK_IMPORTED_MODULE_2__.exec(`nsc cluster docker-login --output_registry_to=${out}`);
         return fs__WEBPACK_IMPORTED_MODULE_3__.readFileSync(out, "utf8");
     });
 }
