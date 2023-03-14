@@ -18,7 +18,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Install and configure Namespace Cloud CLI
-        uses: namespacelabs/nscloud-setup@v0.0.1
+        uses: namespacelabs/nscloud-setup@v0.0.2
       - name: Create an ephemeral cluster
         run: |
           nsc cluster create
