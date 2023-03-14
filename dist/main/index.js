@@ -6757,12 +6757,19 @@ var __webpack_exports__ = {};
 (() => {
 "use strict";
 __nccwpck_require__.r(__webpack_exports__);
+/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
+/* harmony export */   "tmpFile": () => (/* binding */ tmpFile)
+/* harmony export */ });
 /* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(2186);
 /* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_actions_core__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _actions_tool_cache__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(7784);
 /* harmony import */ var _actions_tool_cache__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nccwpck_require__.n(_actions_tool_cache__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _actions_exec__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(1514);
 /* harmony import */ var _actions_exec__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__nccwpck_require__.n(_actions_exec__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(7147);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__nccwpck_require__.n(fs__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_4__ = __nccwpck_require__(1017);
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__nccwpck_require__.n(path__WEBPACK_IMPORTED_MODULE_4__);
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -6775,11 +6782,15 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
+
+
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             yield installNsc();
             yield ensureFreshTenantToken();
+            const registry = yield dockerLogin();
+            _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput("registry-address", registry);
         }
         catch (error) {
             _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(error.message);
@@ -6830,6 +6841,20 @@ function ensureFreshTenantToken() {
     return __awaiter(this, void 0, void 0, function* () {
         yield _actions_exec__WEBPACK_IMPORTED_MODULE_2__.exec("nsc auth exchange-github-token");
     });
+}
+function dockerLogin() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const out = tmpFile("registry.txt");
+        yield _actions_exec__WEBPACK_IMPORTED_MODULE_2__.exec(`nsc cluster docker-login --output_registry_to=${out}`);
+        return fs__WEBPACK_IMPORTED_MODULE_3__.readFileSync(out, "utf8");
+    });
+}
+function tmpFile(file) {
+    const tmpDir = path__WEBPACK_IMPORTED_MODULE_4__.join(process.env.RUNNER_TEMP, "ns");
+    if (!fs__WEBPACK_IMPORTED_MODULE_3__.existsSync(tmpDir)) {
+        fs__WEBPACK_IMPORTED_MODULE_3__.mkdirSync(tmpDir);
+    }
+    return path__WEBPACK_IMPORTED_MODULE_4__.join(tmpDir, file);
 }
 run();
 
