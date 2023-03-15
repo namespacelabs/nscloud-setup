@@ -35,6 +35,9 @@ jobs:
       - name: Set up Namespace Cloud CLI
         id: nscloud
         uses: ./ # Uses an action in the root directory
+      - name: Debug
+        run: |
+          cat ~/.docker/config.json
       - name: Push to private registry
         run: |
           echo "Pushing to ${{ steps.nscloud.outputs.registry-address }}..."
