@@ -22,9 +22,9 @@ jobs:
       - name: Get pods
         run: |
           cat /tmp/cluster_id.txt | xargs -I % nsc kubectl % get pods -- -A
-      - name: Destroy cluster
+      - name: Release cluster
         run: |
-          cat /tmp/cluster_id.txt | xargs -I % nsc cluster destroy % --force
+          cat /tmp/cluster_id.txt | xargs -I % nsc cluster release %
 
   push_image:
     runs-on: ubuntu-latest
