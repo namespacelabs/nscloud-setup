@@ -37,6 +37,8 @@ jobs:
         uses: ./ # Uses an action in the root directory
       - name: Debug
         run: |
+          nsc version
+
           cat ~/.docker/config.json
       - name: Push to private registry
         run: |
