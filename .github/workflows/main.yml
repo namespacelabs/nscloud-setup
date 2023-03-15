@@ -21,6 +21,7 @@ jobs:
         run: |
           cat /tmp/cluster_id.txt | xargs -I % nsc kubectl % get pods -- -A
       - name: Release cluster
+        if: always()
         run: |
           cat /tmp/cluster_id.txt | xargs -I % nsc cluster release %
 
