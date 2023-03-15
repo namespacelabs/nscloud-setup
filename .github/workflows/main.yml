@@ -16,9 +16,7 @@ jobs:
         uses: ./ # Uses an action in the root directory
       - name: Create a cluster
         run: |
-          touch /tmp/cluster_id.txt
-
-          nsc cluster create --wait_kube_system --output_to=/tmp/cluster_id.txt
+          nsc cluster create --ephemeral --wait_kube_system --output_to=/tmp/cluster_id.txt
       - name: Get pods
         run: |
           cat /tmp/cluster_id.txt | xargs -I % nsc kubectl % get pods -- -A
