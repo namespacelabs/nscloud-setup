@@ -6786,32 +6786,33 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Install Namespace Cloud CLI`, () => __awaiter(this, void 0, void 0, function* () {
-            try {
-                yield installNsc();
-                yield _actions_exec__WEBPACK_IMPORTED_MODULE_2__.exec("nsc version");
-            }
-            catch (e) {
-                _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(e.message);
-            }
-        }));
-        yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Log into Namespace workspace`, () => __awaiter(this, void 0, void 0, function* () {
-            try {
-                yield ensureFreshTenantToken();
-            }
-            catch (e) {
-                _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(e.message);
-            }
-        }));
-        yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Registry address`, () => __awaiter(this, void 0, void 0, function* () {
-            try {
-                const registry = yield dockerLogin();
+        try {
+            yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Install Namespace Cloud CLI`, () => __awaiter(this, void 0, void 0, function* () {
+                try {
+                    yield installNsc();
+                    yield _actions_exec__WEBPACK_IMPORTED_MODULE_2__.exec("nsc version");
+                }
+                catch (e) {
+                    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(e.message);
+                }
+            }));
+            yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Log into Namespace workspace`, () => __awaiter(this, void 0, void 0, function* () {
+                try {
+                    yield ensureFreshTenantToken();
+                }
+                catch (e) {
+                    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(e.message);
+                }
+            }));
+            const registry = yield dockerLogin();
+            yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Registry address`, () => __awaiter(this, void 0, void 0, function* () {
+                _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(registry);
                 _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput("registry-address", registry);
-            }
-            catch (e) {
-                _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(e.message);
-            }
-        }));
+            }));
+        }
+        catch (e) {
+            _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(e.message);
+        }
     });
 }
 function installNsc() {
@@ -6862,7 +6863,7 @@ function ensureFreshTenantToken() {
 function dockerLogin() {
     return __awaiter(this, void 0, void 0, function* () {
         const out = tmpFile("registry.txt");
-        yield _actions_exec__WEBPACK_IMPORTED_MODULE_2__.exec(`nsc cluster docker-login --output_registry_to=${out}`);
+        yield _actions_exec__WEBPACK_IMPORTED_MODULE_2__.exec(`nsc cluster docker-login --output_registry_to=${out} --log_actions=false`);
         return fs__WEBPACK_IMPORTED_MODULE_3__.readFileSync(out, "utf8");
     });
 }

@@ -5,31 +5,32 @@ import * as fs from "fs";
 import * as path from "path";
 
 async function run(): Promise<void> {
-	await core.group(`Install Namespace Cloud CLI`, async () => {
-		try {
-			await installNsc();
-			await exec.exec("nsc version");
-		} catch (e) {
-			core.setFailed(e.message);
-		}
-	});
+	try {
+		await core.group(`Install Namespace Cloud CLI`, async () => {
+			try {
+				await installNsc();
+				await exec.exec("nsc version");
+			} catch (e) {
+				core.setFailed(e.message);
+			}
+		});
 
-	await core.group(`Log into Namespace workspace`, async () => {
-		try {
-			await ensureFreshTenantToken();
-		} catch (e) {
-			core.setFailed(e.message);
-		}
-	});
+		await core.group(`Log into Namespace workspace`, async () => {
+			try {
+				await ensureFreshTenantToken();
+			} catch (e) {
+				core.setFailed(e.message);
+			}
+		});
 
-	await core.group(`Registry address`, async () => {
-		try {
-			const registry = await dockerLogin();
+		const registry = await dockerLogin();
+		await core.group(`Registry address`, async () => {
+			core.info(registry);
 			core.setOutput("registry-address", registry);
-		} catch (e) {
-			core.setFailed(e.message);
-		}
-	});
+		});
+	} catch (e) {
+		core.setFailed(e.message);
+	}
 }
 
 async function installNsc() {
@@ -84,7 +85,7 @@ async function ensureFreshTenantToken() {
 
 async function dockerLogin() {
 	const out = tmpFile("registry.txt");
-	await exec.exec(`nsc cluster docker-login --output_registry_to=${out}`);
+	await exec.exec(`nsc cluster docker-login --output_registry_to=${out} --log_actions=false`);
 
 	return fs.readFileSync(out, "utf8");
 }
