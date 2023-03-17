@@ -6,14 +6,22 @@ import * as path from "path";
 
 async function run(): Promise<void> {
 	try {
-		await installNsc();
+		await core.group(`Install Namespace Cloud CLI`, async () => {
+			await installNsc();
+			await exec.exec("nsc version");
+		});
 
-		await ensureFreshTenantToken();
+		const registry = await core.group(`Log into Namespace workspace`, async () => {
+			await ensureFreshTenantToken();
+			return await dockerLogin();
+		});
 
-		const registry = await dockerLogin();
-		core.setOutput("registry-address", registry);
-	} catch (error) {
-		core.setFailed(error.message);
+		await core.group(`Registry address`, async () => {
+			core.info(registry);
+			core.setOutput("registry-address", registry);
+		});
+	} catch (e) {
+		core.setFailed(e.message);
 	}
 }
 
@@ -69,7 +77,7 @@ async function ensureFreshTenantToken() {
 
 async function dockerLogin() {
 	const out = tmpFile("registry.txt");
-	await exec.exec(`nsc cluster docker-login --output_registry_to=${out}`);
+	await exec.exec(`nsc cluster docker-login --output_registry_to=${out} --log_actions=false`);
 
 	return fs.readFileSync(out, "utf8");
 }
