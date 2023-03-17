@@ -5,16 +5,31 @@ import * as fs from "fs";
 import * as path from "path";
 
 async function run(): Promise<void> {
-	try {
-		await installNsc();
+	await core.group(`Install Namespace Cloud CLI`, async () => {
+		try {
+			await installNsc();
+			await exec.exec("nsc version");
+		} catch (e) {
+			core.setFailed(e.message);
+		}
+	});
 
-		await ensureFreshTenantToken();
+	await core.group(`Log into Namespace workspace`, async () => {
+		try {
+			await ensureFreshTenantToken();
+		} catch (e) {
+			core.setFailed(e.message);
+		}
+	});
 
-		const registry = await dockerLogin();
-		core.setOutput("registry-address", registry);
-	} catch (error) {
-		core.setFailed(error.message);
-	}
+	await core.group(`Registry address`, async () => {
+		try {
+			const registry = await dockerLogin();
+			core.setOutput("registry-address", registry);
+		} catch (e) {
+			core.setFailed(e.message);
+		}
+	});
 }
 
 async function installNsc() {
