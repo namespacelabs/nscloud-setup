@@ -6788,23 +6788,13 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Install Namespace Cloud CLI`, () => __awaiter(this, void 0, void 0, function* () {
-                try {
-                    yield installNsc();
-                    yield _actions_exec__WEBPACK_IMPORTED_MODULE_2__.exec("nsc version");
-                }
-                catch (e) {
-                    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(e.message);
-                }
+                yield installNsc();
+                yield _actions_exec__WEBPACK_IMPORTED_MODULE_2__.exec("nsc version");
             }));
-            yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Log into Namespace workspace`, () => __awaiter(this, void 0, void 0, function* () {
-                try {
-                    yield ensureFreshTenantToken();
-                }
-                catch (e) {
-                    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(e.message);
-                }
+            const registry = yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Log into Namespace workspace`, () => __awaiter(this, void 0, void 0, function* () {
+                yield ensureFreshTenantToken();
+                return yield dockerLogin();
             }));
-            const registry = yield dockerLogin();
             yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Registry address`, () => __awaiter(this, void 0, void 0, function* () {
                 _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(registry);
                 _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput("registry-address", registry);
