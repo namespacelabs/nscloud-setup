@@ -57,4 +57,4 @@ jobs:
       - name: Release cluster
         if: always()
         run: |
-          cat /tmp/cluster_id.txt | xargs -I % nsc cluster release %
+          cat /tmp/cluster_id.txt | xargs -I % nsc cluster internal release %
