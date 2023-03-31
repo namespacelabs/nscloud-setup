@@ -12,7 +12,7 @@ async function run(): Promise<void> {
 		});
 
 		const registry = await core.group(`Log into Namespace workspace`, async () => {
-			await ensureFreshTenantToken();
+			await ensureNscloudToken();
 			return await dockerLogin();
 		});
 
@@ -71,7 +71,14 @@ function getDownloadURL(): string {
 	return `https://get.namespace.so/packages/nsc/latest?arch=${arch}&os=${os}`;
 }
 
-async function ensureFreshTenantToken() {
+async function ensureNscloudToken() {
+	const tokenSpecFile = "/var/run/nsc/token.spec";
+	if (fs.existsSync(tokenSpecFile)) {
+		const tokenSpec = fs.readFileSync(tokenSpecFile, "utf8");
+		core.exportVariable("NSC_TOKEN_SPEC", tokenSpec);
+		return
+	}
+
 	await exec.exec("nsc auth exchange-github-token");
 }
 
