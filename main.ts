@@ -72,10 +72,9 @@ function getDownloadURL(): string {
 }
 
 async function ensureNscloudToken() {
-	const tokenSpecFile = "/var/run/nsc/token.spec";
-	if (fs.existsSync(tokenSpecFile)) {
-		const tokenSpec = fs.readFileSync(tokenSpecFile, "utf8");
-		core.exportVariable("NSC_TOKEN_SPEC", tokenSpec);
+	const tokenFile = "/var/run/nsc/token.json";
+	if (fs.existsSync(tokenFile)) {
+		core.exportVariable("NSC_TOKEN_FILE", tokenFile);
 		return
 	}
 

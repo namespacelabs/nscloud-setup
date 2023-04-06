@@ -6847,10 +6847,9 @@ function getDownloadURL() {
 }
 function ensureNscloudToken() {
     return __awaiter(this, void 0, void 0, function* () {
-        const tokenSpecFile = "/var/run/nsc/token.spec";
-        if (fs__WEBPACK_IMPORTED_MODULE_3__.existsSync(tokenSpecFile)) {
-            const tokenSpec = fs__WEBPACK_IMPORTED_MODULE_3__.readFileSync(tokenSpecFile, "utf8");
-            _actions_core__WEBPACK_IMPORTED_MODULE_0__.exportVariable("NSC_TOKEN_SPEC", tokenSpec);
+        const tokenFile = "/var/run/nsc/token.json";
+        if (fs__WEBPACK_IMPORTED_MODULE_3__.existsSync(tokenFile)) {
+            _actions_core__WEBPACK_IMPORTED_MODULE_0__.exportVariable("NSC_TOKEN_FILE", tokenFile);
             return;
         }
         yield _actions_exec__WEBPACK_IMPORTED_MODULE_2__.exec("nsc auth exchange-github-token");
