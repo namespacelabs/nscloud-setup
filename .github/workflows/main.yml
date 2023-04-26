@@ -53,7 +53,7 @@ jobs:
           nsc cluster create --ephemeral --wait_kube_system --output_to=/tmp/cluster_id.txt
       - name: Get pods
         run: |
-          cat /tmp/cluster_id.txt | xargs -I % nsc kubectl % get pods -- -A
+          cat /tmp/cluster_id.txt | xargs -I % nsc kubectl % get pods -A
       - name: Release cluster
         if: always()
         run: |
