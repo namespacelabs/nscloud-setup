@@ -1,7 +1,7 @@
-# Set up Namespace Cloud CLI
+# Configure access to Namespace
 
-This repository hosts a GitHub action that installs and configures
-the [Namespace Cloud](https://cloud.namespace.so) CLI `nsc` in your workflow.
+This repository hosts a GitHub action that configures access to Namespace.
+It also installs the [Namespace Cloud](https://cloud.namespace.so) CLI `nsc` in your workflow.
 
 ## Example
 
@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Install and configure Namespace Cloud CLI
+      - name: Configure access to Namespace
         uses: namespacelabs/nscloud-setup@v0.0.5
       - name: Create an ephemeral cluster
         run: |

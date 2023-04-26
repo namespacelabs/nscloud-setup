@@ -6,7 +6,7 @@ import * as path from "path";
 
 async function run(): Promise<void> {
 	try {
-		await core.group(`Install Namespace Cloud CLI`, async () => {
+		await core.group(`Prepare access to Namespace`, async () => {
 			await installNsc();
 			await exec.exec("nsc version");
 		});
@@ -75,7 +75,7 @@ async function ensureNscloudToken() {
 	const tokenFile = "/var/run/nsc/token.json";
 	if (fs.existsSync(tokenFile)) {
 		core.exportVariable("NSC_TOKEN_FILE", tokenFile);
-		return
+		return;
 	}
 
 	await exec.exec("nsc auth exchange-github-token");
