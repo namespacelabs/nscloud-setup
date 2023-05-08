@@ -15,7 +15,7 @@ jobs:
       - name: Set up Namespace Cloud CLI
         uses: ./ # Uses an action in the root directory
       - name: Set up kubectl with an ephemeral cluster in Namespace Cloud
-        uses: namespacelabs/nscloud-cluster-action@v0.0.4
+        uses: namespacelabs/nscloud-cluster-action@v0
       - name: Apply configurations
         run: |
           kubectl apply -f .github/workflows/testdata/kubernetes/demo.yaml
