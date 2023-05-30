@@ -83,7 +83,7 @@ async function ensureNscloudToken() {
 
 async function dockerLogin() {
 	const out = tmpFile("registry.txt");
-	await exec.exec(`nsc cluster docker-login --output_registry_to=${out} --log_actions=false`);
+	await exec.exec(`nsc docker login --output_registry_to=${out} --log_actions=false`);
 
 	return fs.readFileSync(out, "utf8");
 }

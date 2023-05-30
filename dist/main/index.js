@@ -6858,7 +6858,7 @@ function ensureNscloudToken() {
 function dockerLogin() {
     return __awaiter(this, void 0, void 0, function* () {
         const out = tmpFile("registry.txt");
-        yield _actions_exec__WEBPACK_IMPORTED_MODULE_2__.exec(`nsc cluster docker-login --output_registry_to=${out} --log_actions=false`);
+        yield _actions_exec__WEBPACK_IMPORTED_MODULE_2__.exec(`nsc docker login --output_registry_to=${out} --log_actions=false`);
         return fs__WEBPACK_IMPORTED_MODULE_3__.readFileSync(out, "utf8");
     });
 }
