@@ -39,6 +39,7 @@ jobs:
       - name: Wait until Redis is available
         run: |
           kubectl rollout status -n demo-app --watch --timeout=90s statefulset/demo-redis-server
+
     name: Deploy to an ephemeral cluster in Namespace Cloud
     steps:
       - name: Checkout
