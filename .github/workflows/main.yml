@@ -7,7 +7,11 @@ permissions:
 
 jobs:
   run_nscloud_action:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, nscloud-ubuntu-22.04-amd64-2x8]
+    runs-on: ${{ matrix.os }}
     name: Deploy to an ephemeral cluster in Namespace Cloud
     steps:
       - name: Checkout
@@ -23,25 +27,12 @@ jobs:
         run: |
           kubectl rollout status -n demo-app --watch --timeout=90s statefulset/demo-redis-server
 
-  run_nscloud_action_on_nscloud_runner:
-    runs-on: nscloud-ubuntu-22.04-amd64-2x8
-    name: Deploy to an ephemeral cluster in Namespace Cloud on nscloud runner
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Set up Namespace Cloud CLI
-        uses: ./ # Uses an action in the root directory
-      - name: Set up kubectl with an ephemeral cluster in Namespace Cloud
-        uses: namespacelabs/nscloud-cluster-action@v0.0.4
-      - name: Apply configurations
-        run: |
-          kubectl apply -f .github/workflows/testdata/kubernetes/demo.yaml
-      - name: Wait until Redis is available
-        run: |
-          kubectl rollout status -n demo-app --watch --timeout=90s statefulset/demo-redis-server
-
   push_image:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, nscloud-ubuntu-22.04-amd64-2x8]
+    runs-on: ${{ matrix.os }}
     name: Push an image to the Namespace Cloud registry
     steps:
       - name: Checkout
@@ -58,7 +49,11 @@ jobs:
           docker push ${{ steps.nscloud.outputs.registry-address }}/nscloud-alpine
 
   use_nsc_manually:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, nscloud-ubuntu-22.04-amd64-2x8]
+    runs-on: ${{ matrix.os }}
     name: Create a Namespace Cloud cluster manually
     steps:
       - name: Checkout
