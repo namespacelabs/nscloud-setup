@@ -1,4 +1,4 @@
-name: Print env and event
+name: Print env and event JSON
 on: [push]
 jobs:
   debug:
