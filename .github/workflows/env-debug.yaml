@@ -1,0 +1,12 @@
+name: Print env and event
+on: [push]
+jobs:
+  debug:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: print env
+        run: |
+          env
+      - name: print envent
+        run: |
+          cat $GITHUB_EVENT_PATH
