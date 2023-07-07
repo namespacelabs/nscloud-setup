@@ -24,7 +24,31 @@ jobs:
           nsc cluster create
 ```
 
+### Using Namespace GitHub Runners
+
+Namespace GitHub Runners are already authenticated with Namespace.
+Hence, no token exchange is needed and `id-token: write` permissions can be skipped.
+
+```yaml
+jobs:
+  deploy:
+    name: Ephemeral cluster
+    runs-on: nscloud
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Configure access to Namespace
+        uses: namespacelabs/nscloud-setup@v0
+      - name: Create an ephemeral cluster
+        run: |
+          nsc cluster create
+```
+
 ## Requirements
 
 `nsc` authenticates workloads by talking to GitHub's OIDC Token endpoint.
 Please ensure to grant `id-token: write` for your workflow (see [example](#example)).
+
+When Namespace GitHub Runners are used, no token exchange is needed and `id-token: write` permissions can be skipped (see [example](#using-namespace-github-runners)).
