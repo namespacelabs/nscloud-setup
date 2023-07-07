@@ -26,7 +26,7 @@ jobs:
 
 ### Using Namespace GitHub Runners
 
-Namespace GitHub Runners are already authenticated with Namespace.
+[Namespace GitHub Runners](https://cloud.namespace.so/docs/features/faster-github-actions) are already authenticated with Namespace.
 Hence, no token exchange is needed and `id-token: write` permissions can be skipped.
 
 ```yaml
@@ -51,4 +51,4 @@ jobs:
 `nsc` authenticates workloads by talking to GitHub's OIDC Token endpoint.
 Please ensure to grant `id-token: write` for your workflow (see [example](#example)).
 
-When Namespace GitHub Runners are used, no token exchange is needed and `id-token: write` permissions can be skipped (see [example](#using-namespace-github-runners)).
+When [Namespace GitHub Runners](https://cloud.namespace.so/docs/features/faster-github-actions) are used, no token exchange is needed and `id-token: write` permissions can be skipped (see [example](#using-namespace-github-runners)).
