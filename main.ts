@@ -7,12 +7,12 @@ import * as path from "path";
 async function run(): Promise<void> {
 	try {
 		await core.group(`Prepare access to Namespace`, async () => {
-			var commandExistsSync = require("command-exists").sync;
-			if (commandExistsSync("nsc")) {
-				core.info(`Namespace Cloud CLI found.`);
-			} else {
-				installNsc();
-			}
+			var commandExists = require("command-exists");
+			await commandExists("nsc")
+				.then(function () {
+					core.info(`Namespace Cloud CLI found.`);
+				})
+				.catch(installNsc());
 
 			await exec.exec("nsc version");
 		});

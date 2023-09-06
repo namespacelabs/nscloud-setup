@@ -6961,13 +6961,12 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Prepare access to Namespace`, () => __awaiter(this, void 0, void 0, function* () {
-                var commandExistsSync = (__nccwpck_require__(1569).sync);
-                if (commandExistsSync("nsc")) {
+                var commandExists = __nccwpck_require__(1569);
+                yield commandExists("nsc")
+                    .then(function () {
                     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Namespace Cloud CLI found.`);
-                }
-                else {
-                    installNsc();
-                }
+                })
+                    .catch(installNsc());
                 yield _actions_exec__WEBPACK_IMPORTED_MODULE_2__.exec("nsc version");
             }));
             const registry = yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Log into Namespace workspace`, () => __awaiter(this, void 0, void 0, function* () {
