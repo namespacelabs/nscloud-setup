@@ -6965,15 +6965,10 @@ function run() {
             _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Namespace Cloud CLI found.`);
         })
             .catch(function () {
-            try {
-                _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Prepare access to Namespace`, () => __awaiter(this, void 0, void 0, function* () {
-                    yield installNsc();
-                    yield _actions_exec__WEBPACK_IMPORTED_MODULE_2__.exec("nsc version");
-                }));
-            }
-            catch (e) {
-                _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(e.message);
-            }
+            _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Prepare access to Namespace`, () => __awaiter(this, void 0, void 0, function* () {
+                yield installNsc();
+                yield _actions_exec__WEBPACK_IMPORTED_MODULE_2__.exec("nsc version");
+            }));
         });
         const registry = yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Log into Namespace workspace`, () => __awaiter(this, void 0, void 0, function* () {
             yield ensureNscloudToken();
