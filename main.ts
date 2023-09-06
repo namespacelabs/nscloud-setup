@@ -5,30 +5,32 @@ import * as fs from "fs";
 import * as path from "path";
 
 async function run(): Promise<void> {
-	try {
-		await core.group(`Prepare access to Namespace`, async () => {
-			var commandExists = require("command-exists");
-			await commandExists("nsc")
-				.then(function () {
-					core.info(`Namespace Cloud CLI found.`);
-				})
-				.catch(installNsc());
+	await core.group(`Prepare access to Namespace`, async () => {
+		var commandExists = require("command-exists");
+		await commandExists("nsc")
+			.then(function () {
+				core.info(`Namespace Cloud CLI found.`);
+			})
+			.catch(function () {
+				try {
+					installNsc();
+				} catch (e) {
+					core.setFailed(e.message);
+				}
+			});
 
-			await exec.exec("nsc version");
-		});
+		await exec.exec("nsc version");
+	});
 
-		const registry = await core.group(`Log into Namespace workspace`, async () => {
-			await ensureNscloudToken();
-			return await dockerLogin();
-		});
+	const registry = await core.group(`Log into Namespace workspace`, async () => {
+		await ensureNscloudToken();
+		return await dockerLogin();
+	});
 
-		await core.group(`Registry address`, async () => {
-			core.info(registry);
-			core.setOutput("registry-address", registry);
-		});
-	} catch (e) {
-		core.setFailed(e.message);
-	}
+	await core.group(`Registry address`, async () => {
+		core.info(registry);
+		core.setOutput("registry-address", registry);
+	});
 }
 
 async function installNsc() {
