@@ -6959,22 +6959,22 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Prepare access to Namespace`, () => __awaiter(this, void 0, void 0, function* () {
-            var commandExists = __nccwpck_require__(1569);
-            yield commandExists("nsc")
-                .then(function () {
-                _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Namespace Cloud CLI found.`);
-            })
-                .catch(function () {
-                try {
-                    installNsc();
-                }
-                catch (e) {
-                    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(e.message);
-                }
-            });
-            yield _actions_exec__WEBPACK_IMPORTED_MODULE_2__.exec("nsc version");
-        }));
+        var commandExists = __nccwpck_require__(1569);
+        commandExists("nsc")
+            .then(function () {
+            _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Namespace Cloud CLI found.`);
+        })
+            .catch(function () {
+            try {
+                _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Prepare access to Namespace`, () => __awaiter(this, void 0, void 0, function* () {
+                    yield installNsc();
+                    yield _actions_exec__WEBPACK_IMPORTED_MODULE_2__.exec("nsc version");
+                }));
+            }
+            catch (e) {
+                _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(e.message);
+            }
+        });
         const registry = yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Log into Namespace workspace`, () => __awaiter(this, void 0, void 0, function* () {
             yield ensureNscloudToken();
             return yield dockerLogin();

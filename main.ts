@@ -5,22 +5,21 @@ import * as fs from "fs";
 import * as path from "path";
 
 async function run(): Promise<void> {
-	await core.group(`Prepare access to Namespace`, async () => {
-		var commandExists = require("command-exists");
-		await commandExists("nsc")
-			.then(function () {
-				core.info(`Namespace Cloud CLI found.`);
-			})
-			.catch(function () {
-				try {
-					installNsc();
-				} catch (e) {
-					core.setFailed(e.message);
-				}
-			});
-
-		await exec.exec("nsc version");
-	});
+	var commandExists = require("command-exists");
+	commandExists("nsc")
+		.then(function () {
+			core.info(`Namespace Cloud CLI found.`);
+		})
+		.catch(function () {
+			try {
+				core.group(`Prepare access to Namespace`, async () => {
+					await installNsc();
+					await exec.exec("nsc version");
+				});
+			} catch (e) {
+				core.setFailed(e.message);
+			}
+		});
 
 	const registry = await core.group(`Log into Namespace workspace`, async () => {
 		await ensureNscloudToken();
