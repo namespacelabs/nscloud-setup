@@ -9,11 +9,14 @@ async function run(): Promise<void> {
 		await core.group(`Prepare access to Namespace`, async () => {
 			var commandExists = require("command-exists");
 
-			commandExists("nsc")
-				.then(function () {
+			commandExists("nsc", function (err, commandExists) {
+				if (commandExists) {
 					core.info(`Namespace Cloud CLI found.`);
-				})
-				.catch(installNsc());
+					return;
+				}
+
+				installNsc();
+			});
 
 			await exec.exec("nsc version");
 		});
