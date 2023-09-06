@@ -6554,6 +6554,14 @@ module.exports = v4;
 
 /***/ }),
 
+/***/ 5238:
+/***/ ((module) => {
+
+module.exports = eval("require")("command-exists");
+
+
+/***/ }),
+
 /***/ 9491:
 /***/ ((module) => {
 
@@ -6788,7 +6796,12 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Prepare access to Namespace`, () => __awaiter(this, void 0, void 0, function* () {
-                yield installNsc();
+                var commandExists = __nccwpck_require__(5238);
+                commandExists("nsc")
+                    .then(function () {
+                    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Namespace Cloud CLI found.`);
+                })
+                    .catch(installNsc());
                 yield _actions_exec__WEBPACK_IMPORTED_MODULE_2__.exec("nsc version");
             }));
             const registry = yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Log into Namespace workspace`, () => __awaiter(this, void 0, void 0, function* () {
