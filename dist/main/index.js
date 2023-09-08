@@ -7118,9 +7118,9 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
+        const which = __nccwpck_require__(6143);
+        const resolvedOrNull = yield which("nsc", { nothrow: true });
         try {
-            const which = __nccwpck_require__(6143);
-            const resolvedOrNull = yield which("nsc", { nothrow: true });
             if (resolvedOrNull == null) {
                 _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Prepare access to Namespace`, () => __awaiter(this, void 0, void 0, function* () {
                     yield installNsc();

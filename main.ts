@@ -5,10 +5,10 @@ import * as fs from "fs";
 import * as path from "path";
 
 async function run(): Promise<void> {
-	try {
-		const which = require("which");
+	const which = require("which");
+	const resolvedOrNull = await which("nsc", { nothrow: true });
 
-		const resolvedOrNull = await which("nsc", { nothrow: true });
+	try {
 		if (resolvedOrNull == null) {
 			core.group(`Prepare access to Namespace`, async () => {
 				await installNsc();
