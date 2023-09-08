@@ -4587,175 +4587,163 @@ function _unique(values) {
 
 /***/ }),
 
-/***/ 1569:
+/***/ 7126:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-module.exports = __nccwpck_require__(4325);
+var fs = __nccwpck_require__(7147)
+var core
+if (process.platform === 'win32' || global.TESTING_WINDOWS) {
+  core = __nccwpck_require__(2001)
+} else {
+  core = __nccwpck_require__(9728)
+}
+
+module.exports = isexe
+isexe.sync = sync
+
+function isexe (path, options, cb) {
+  if (typeof options === 'function') {
+    cb = options
+    options = {}
+  }
+
+  if (!cb) {
+    if (typeof Promise !== 'function') {
+      throw new TypeError('callback not provided')
+    }
+
+    return new Promise(function (resolve, reject) {
+      isexe(path, options || {}, function (er, is) {
+        if (er) {
+          reject(er)
+        } else {
+          resolve(is)
+        }
+      })
+    })
+  }
+
+  core(path, options || {}, function (er, is) {
+    // ignore EACCES because that just means we aren't allowed to run it
+    if (er) {
+      if (er.code === 'EACCES' || options && options.ignoreErrors) {
+        er = null
+        is = false
+      }
+    }
+    cb(er, is)
+  })
+}
+
+function sync (path, options) {
+  // my kingdom for a filtered catch
+  try {
+    return core.sync(path, options || {})
+  } catch (er) {
+    if (options && options.ignoreErrors || er.code === 'EACCES') {
+      return false
+    } else {
+      throw er
+    }
+  }
+}
 
 
 /***/ }),
 
-/***/ 4325:
+/***/ 9728:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-"use strict";
+module.exports = isexe
+isexe.sync = sync
+
+var fs = __nccwpck_require__(7147)
+
+function isexe (path, options, cb) {
+  fs.stat(path, function (er, stat) {
+    cb(er, er ? false : checkStat(stat, options))
+  })
+}
+
+function sync (path, options) {
+  return checkStat(fs.statSync(path), options)
+}
+
+function checkStat (stat, options) {
+  return stat.isFile() && checkMode(stat, options)
+}
+
+function checkMode (stat, options) {
+  var mod = stat.mode
+  var uid = stat.uid
+  var gid = stat.gid
+
+  var myUid = options.uid !== undefined ?
+    options.uid : process.getuid && process.getuid()
+  var myGid = options.gid !== undefined ?
+    options.gid : process.getgid && process.getgid()
+
+  var u = parseInt('100', 8)
+  var g = parseInt('010', 8)
+  var o = parseInt('001', 8)
+  var ug = u | g
+
+  var ret = (mod & o) ||
+    (mod & g) && gid === myGid ||
+    (mod & u) && uid === myUid ||
+    (mod & ug) && myUid === 0
+
+  return ret
+}
 
 
-var exec = (__nccwpck_require__(2081).exec);
-var execSync = (__nccwpck_require__(2081).execSync);
-var fs = __nccwpck_require__(7147);
-var path = __nccwpck_require__(1017);
-var access = fs.access;
-var accessSync = fs.accessSync;
-var constants = fs.constants || fs;
+/***/ }),
 
-var isUsingWindows = process.platform == 'win32'
+/***/ 2001:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-var fileNotExists = function(commandName, callback){
-    access(commandName, constants.F_OK,
-    function(err){
-        callback(!err);
-    });
-};
+module.exports = isexe
+isexe.sync = sync
 
-var fileNotExistsSync = function(commandName){
-    try{
-        accessSync(commandName, constants.F_OK);
-        return false;
-    }catch(e){
-        return true;
+var fs = __nccwpck_require__(7147)
+
+function checkPathExt (path, options) {
+  var pathext = options.pathExt !== undefined ?
+    options.pathExt : process.env.PATHEXT
+
+  if (!pathext) {
+    return true
+  }
+
+  pathext = pathext.split(';')
+  if (pathext.indexOf('') !== -1) {
+    return true
+  }
+  for (var i = 0; i < pathext.length; i++) {
+    var p = pathext[i].toLowerCase()
+    if (p && path.substr(-p.length).toLowerCase() === p) {
+      return true
     }
-};
-
-var localExecutable = function(commandName, callback){
-    access(commandName, constants.F_OK | constants.X_OK,
-        function(err){
-        callback(null, !err);
-    });
-};
-
-var localExecutableSync = function(commandName){
-    try{
-        accessSync(commandName, constants.F_OK | constants.X_OK);
-        return true;
-    }catch(e){
-        return false;
-    }
+  }
+  return false
 }
 
-var commandExistsUnix = function(commandName, cleanedCommandName, callback) {
-
-    fileNotExists(commandName, function(isFile){
-
-        if(!isFile){
-            var child = exec('command -v ' + cleanedCommandName +
-                  ' 2>/dev/null' +
-                  ' && { echo >&1 ' + cleanedCommandName + '; exit 0; }',
-                  function (error, stdout, stderr) {
-                      callback(null, !!stdout);
-                  });
-            return;
-        }
-
-        localExecutable(commandName, callback);
-    });
-
+function checkStat (stat, path, options) {
+  if (!stat.isSymbolicLink() && !stat.isFile()) {
+    return false
+  }
+  return checkPathExt(path, options)
 }
 
-var commandExistsWindows = function(commandName, cleanedCommandName, callback) {
-  // Regex from Julio from: https://stackoverflow.com/questions/51494579/regex-windows-path-validator
-  if (!(/^(?!(?:.*\s|.*\.|\W+)$)(?:[a-zA-Z]:)?(?:(?:[^<>:"\|\?\*\n])+(?:\/\/|\/|\\\\|\\)?)+$/m.test(commandName))) {
-    callback(null, false);
-    return;
-  }
-  var child = exec('where ' + cleanedCommandName,
-    function (error) {
-      if (error !== null){
-        callback(null, false);
-      } else {
-        callback(null, true);
-      }
-    }
-  )
+function isexe (path, options, cb) {
+  fs.stat(path, function (er, stat) {
+    cb(er, er ? false : checkStat(stat, path, options))
+  })
 }
 
-var commandExistsUnixSync = function(commandName, cleanedCommandName) {
-  if(fileNotExistsSync(commandName)){
-      try {
-        var stdout = execSync('command -v ' + cleanedCommandName +
-              ' 2>/dev/null' +
-              ' && { echo >&1 ' + cleanedCommandName + '; exit 0; }'
-              );
-        return !!stdout;
-      } catch (error) {
-        return false;
-      }
-  }
-  return localExecutableSync(commandName);
+function sync (path, options) {
+  return checkStat(fs.statSync(path), path, options)
 }
-
-var commandExistsWindowsSync = function(commandName, cleanedCommandName, callback) {
-  // Regex from Julio from: https://stackoverflow.com/questions/51494579/regex-windows-path-validator
-  if (!(/^(?!(?:.*\s|.*\.|\W+)$)(?:[a-zA-Z]:)?(?:(?:[^<>:"\|\?\*\n])+(?:\/\/|\/|\\\\|\\)?)+$/m.test(commandName))) {
-    return false;
-  }
-  try {
-      var stdout = execSync('where ' + cleanedCommandName, {stdio: []});
-      return !!stdout;
-  } catch (error) {
-      return false;
-  }
-}
-
-var cleanInput = function(s) {
-  if (/[^A-Za-z0-9_\/:=-]/.test(s)) {
-    s = "'"+s.replace(/'/g,"'\\''")+"'";
-    s = s.replace(/^(?:'')+/g, '') // unduplicate single-quote at the beginning
-      .replace(/\\'''/g, "\\'" ); // remove non-escaped single-quote if there are enclosed between 2 escaped
-  }
-  return s;
-}
-
-if (isUsingWindows) {
-  cleanInput = function(s) {
-    var isPathName = /[\\]/.test(s);
-    if (isPathName) {
-      var dirname = '"' + path.dirname(s) + '"';
-      var basename = '"' + path.basename(s) + '"';
-      return dirname + ':' + basename;
-    }
-    return '"' + s + '"';
-  }
-}
-
-module.exports = function commandExists(commandName, callback) {
-  var cleanedCommandName = cleanInput(commandName);
-  if (!callback && typeof Promise !== 'undefined') {
-    return new Promise(function(resolve, reject){
-      commandExists(commandName, function(error, output) {
-        if (output) {
-          resolve(commandName);
-        } else {
-          reject(error);
-        }
-      });
-    });
-  }
-  if (isUsingWindows) {
-    commandExistsWindows(commandName, cleanedCommandName, callback);
-  } else {
-    commandExistsUnix(commandName, cleanedCommandName, callback);
-  }
-};
-
-module.exports.sync = function(commandName) {
-  var cleanedCommandName = cleanInput(commandName);
-  if (isUsingWindows) {
-    return commandExistsWindowsSync(commandName, cleanedCommandName);
-  } else {
-    return commandExistsUnixSync(commandName, cleanedCommandName);
-  }
-};
 
 
 /***/ }),
@@ -6727,6 +6715,145 @@ module.exports = v4;
 
 /***/ }),
 
+/***/ 4207:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+module.exports = which
+which.sync = whichSync
+
+var isWindows = process.platform === 'win32' ||
+    process.env.OSTYPE === 'cygwin' ||
+    process.env.OSTYPE === 'msys'
+
+var path = __nccwpck_require__(1017)
+var COLON = isWindows ? ';' : ':'
+var isexe = __nccwpck_require__(7126)
+
+function getNotFoundError (cmd) {
+  var er = new Error('not found: ' + cmd)
+  er.code = 'ENOENT'
+
+  return er
+}
+
+function getPathInfo (cmd, opt) {
+  var colon = opt.colon || COLON
+  var pathEnv = opt.path || process.env.PATH || ''
+  var pathExt = ['']
+
+  pathEnv = pathEnv.split(colon)
+
+  var pathExtExe = ''
+  if (isWindows) {
+    pathEnv.unshift(process.cwd())
+    pathExtExe = (opt.pathExt || process.env.PATHEXT || '.EXE;.CMD;.BAT;.COM')
+    pathExt = pathExtExe.split(colon)
+
+
+    // Always test the cmd itself first.  isexe will check to make sure
+    // it's found in the pathExt set.
+    if (cmd.indexOf('.') !== -1 && pathExt[0] !== '')
+      pathExt.unshift('')
+  }
+
+  // If it has a slash, then we don't bother searching the pathenv.
+  // just check the file itself, and that's it.
+  if (cmd.match(/\//) || isWindows && cmd.match(/\\/))
+    pathEnv = ['']
+
+  return {
+    env: pathEnv,
+    ext: pathExt,
+    extExe: pathExtExe
+  }
+}
+
+function which (cmd, opt, cb) {
+  if (typeof opt === 'function') {
+    cb = opt
+    opt = {}
+  }
+
+  var info = getPathInfo(cmd, opt)
+  var pathEnv = info.env
+  var pathExt = info.ext
+  var pathExtExe = info.extExe
+  var found = []
+
+  ;(function F (i, l) {
+    if (i === l) {
+      if (opt.all && found.length)
+        return cb(null, found)
+      else
+        return cb(getNotFoundError(cmd))
+    }
+
+    var pathPart = pathEnv[i]
+    if (pathPart.charAt(0) === '"' && pathPart.slice(-1) === '"')
+      pathPart = pathPart.slice(1, -1)
+
+    var p = path.join(pathPart, cmd)
+    if (!pathPart && (/^\.[\\\/]/).test(cmd)) {
+      p = cmd.slice(0, 2) + p
+    }
+    ;(function E (ii, ll) {
+      if (ii === ll) return F(i + 1, l)
+      var ext = pathExt[ii]
+      isexe(p + ext, { pathExt: pathExtExe }, function (er, is) {
+        if (!er && is) {
+          if (opt.all)
+            found.push(p + ext)
+          else
+            return cb(null, p + ext)
+        }
+        return E(ii + 1, ll)
+      })
+    })(0, pathExt.length)
+  })(0, pathEnv.length)
+}
+
+function whichSync (cmd, opt) {
+  opt = opt || {}
+
+  var info = getPathInfo(cmd, opt)
+  var pathEnv = info.env
+  var pathExt = info.ext
+  var pathExtExe = info.extExe
+  var found = []
+
+  for (var i = 0, l = pathEnv.length; i < l; i ++) {
+    var pathPart = pathEnv[i]
+    if (pathPart.charAt(0) === '"' && pathPart.slice(-1) === '"')
+      pathPart = pathPart.slice(1, -1)
+
+    var p = path.join(pathPart, cmd)
+    if (!pathPart && /^\.[\\\/]/.test(cmd)) {
+      p = cmd.slice(0, 2) + p
+    }
+    for (var j = 0, ll = pathExt.length; j < ll; j ++) {
+      var cur = p + pathExt[j]
+      var is
+      try {
+        is = isexe.sync(cur, { pathExt: pathExtExe })
+        if (is) {
+          if (opt.all)
+            found.push(cur)
+          else
+            return cur
+        }
+      } catch (ex) {}
+    }
+  }
+
+  if (opt.all && found.length)
+    return found
+
+  throw getNotFoundError(cmd)
+}
+
+
+/***/ }),
+
 /***/ 9491:
 /***/ ((module) => {
 
@@ -6959,25 +7086,30 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        var commandExists = __nccwpck_require__(1569);
-        commandExists("nsc")
-            .then(function () {
-            _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Namespace Cloud CLI found.`);
-        })
-            .catch(function () {
-            _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Prepare access to Namespace`, () => __awaiter(this, void 0, void 0, function* () {
-                yield installNsc();
-                yield _actions_exec__WEBPACK_IMPORTED_MODULE_2__.exec("nsc version");
+        try {
+            const which = __nccwpck_require__(4207);
+            const resolvedOrNull = yield which("nsc", { nothrow: true });
+            if (resolvedOrNull == null) {
+                _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Prepare access to Namespace`, () => __awaiter(this, void 0, void 0, function* () {
+                    yield installNsc();
+                }));
+            }
+            else {
+                _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Namespace Cloud CLI found.`);
+            }
+            yield _actions_exec__WEBPACK_IMPORTED_MODULE_2__.exec("nsc version");
+            const registry = yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Log into Namespace workspace`, () => __awaiter(this, void 0, void 0, function* () {
+                yield ensureNscloudToken();
+                return yield dockerLogin();
             }));
-        });
-        const registry = yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Log into Namespace workspace`, () => __awaiter(this, void 0, void 0, function* () {
-            yield ensureNscloudToken();
-            return yield dockerLogin();
-        }));
-        yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Registry address`, () => __awaiter(this, void 0, void 0, function* () {
-            _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(registry);
-            _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput("registry-address", registry);
-        }));
+            yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Registry address`, () => __awaiter(this, void 0, void 0, function* () {
+                _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(registry);
+                _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput("registry-address", registry);
+            }));
+        }
+        catch (e) {
+            _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(e.message);
+        }
     });
 }
 function installNsc() {
