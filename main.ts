@@ -6,16 +6,16 @@ import * as path from "path";
 
 async function run(): Promise<void> {
 	try {
-		// TODO check for nsc instead.
-		const tokenFile = "/var/run/nsc/token.json";
-		if (fs.existsSync(tokenFile)) {
-			core.info(`Namespace Cloud CLI found.`);
-		} else {
-			core.group(`Prepare access to Namespace`, async () => {
+		const which = require("which");
+
+		const resolvedOrNull = await which("nsc", { nothrow: true });
+		if (resolvedOrNull == null) {
+			await core.group(`Prepare access to Namespace`, async () => {
 				await installNsc();
 			});
+		} else {
+			core.info(`Namespace Cloud CLI found.`);
 		}
-
 		await exec.exec("nsc version");
 
 		const registry = await core.group(`Log into Namespace workspace`, async () => {
