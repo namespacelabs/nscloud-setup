@@ -6,10 +6,17 @@ import * as path from "path";
 
 async function run(): Promise<void> {
 	try {
-		await core.group(`Prepare access to Namespace`, async () => {
-			await installNsc();
-			await exec.exec("nsc version");
-		});
+		const which = require("which");
+
+		const resolvedOrNull = await which("nsc", { nothrow: true });
+		if (resolvedOrNull == null) {
+			await core.group(`Prepare access to Namespace`, async () => {
+				await installNsc();
+			});
+		} else {
+			core.info(`Namespace Cloud CLI found.`);
+		}
+		await exec.exec("nsc version");
 
 		const registry = await core.group(`Log into Namespace workspace`, async () => {
 			await ensureNscloudToken();
