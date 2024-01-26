@@ -4,6 +4,9 @@ import * as exec from "@actions/exec";
 import * as fs from "fs";
 import * as path from "path";
 
+const Env_DockerLogin = "NSC_DOCKER_LOGIN"
+const Env_DockerRegistry = "NSC_CONTAINER_REGISTRY"
+
 async function run(): Promise<void> {
 	try {
 		const which = require("which");
@@ -20,7 +23,11 @@ async function run(): Promise<void> {
 
 		const registry = await core.group(`Log into Namespace workspace`, async () => {
 			await ensureNscloudToken();
-			return await dockerLogin();
+			const isDockerLogin = process.env[Env_DockerLogin];
+  			if (isDockerLogin == null || isDockerLogin != "1") {
+				return await dockerLogin();
+			}
+			return process.env[Env_DockerRegistry];
 		});
 
 		await core.group(`Registry address`, async () => {
