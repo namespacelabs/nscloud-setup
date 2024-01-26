@@ -24,13 +24,12 @@ async function run(): Promise<void> {
 		const registry = await core.group(`Log into Namespace workspace`, async () => {
 			await ensureNscloudToken();
 			const isDockerLogin = process.env[Env_DockerLogin];
-  			if (isDockerLogin == null || isDockerLogin != "1") {
-				return await dockerLogin();
+			const reg = process.env[Env_DockerRegistry];
+			if (isDockerLogin != null && reg != null && isDockerLogin == "1" && reg != "") {
+				return reg;
 			}
 
-			const reg = process.env[Env_DockerRegistry];
-			core.info(`Already logged in to Namespace Private Container Registry: ${reg}.`);
-			return reg;
+			return await dockerLogin();
 		});
 
 		await core.group(`Registry address`, async () => {

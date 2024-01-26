@@ -7103,12 +7103,11 @@ function run() {
             const registry = yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Log into Namespace workspace`, () => __awaiter(this, void 0, void 0, function* () {
                 yield ensureNscloudToken();
                 const isDockerLogin = process.env[Env_DockerLogin];
-                if (isDockerLogin == null || isDockerLogin != "1") {
-                    return yield dockerLogin();
-                }
                 const reg = process.env[Env_DockerRegistry];
-                _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Already logged in to Namespace Private Container Registry: ${reg}.`);
-                return reg;
+                if (isDockerLogin != null && reg != null && isDockerLogin == "1" && reg != "") {
+                    return reg;
+                }
+                return yield dockerLogin();
             }));
             yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Registry address`, () => __awaiter(this, void 0, void 0, function* () {
                 _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(registry);
