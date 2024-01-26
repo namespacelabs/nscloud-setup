@@ -27,7 +27,10 @@ async function run(): Promise<void> {
   			if (isDockerLogin == null || isDockerLogin != "1") {
 				return await dockerLogin();
 			}
-			return process.env[Env_DockerRegistry];
+
+			const reg = process.env[Env_DockerRegistry];
+			core.info(`Already logged in to Namespace Private Container Registry: ${reg}.`);
+			return reg;
 		});
 
 		await core.group(`Registry address`, async () => {

@@ -7106,7 +7106,9 @@ function run() {
                 if (isDockerLogin == null || isDockerLogin != "1") {
                     return yield dockerLogin();
                 }
-                return process.env[Env_DockerRegistry];
+                const reg = process.env[Env_DockerRegistry];
+                _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Already logged in to Namespace Private Container Registry: ${reg}.`);
+                return reg;
             }));
             yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Registry address`, () => __awaiter(this, void 0, void 0, function* () {
                 _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(registry);
