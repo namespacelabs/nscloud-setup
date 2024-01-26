@@ -21,16 +21,18 @@ async function run(): Promise<void> {
 		}
 		await exec.exec("nsc version");
 
-		const registry = await core.group(`Log into Namespace workspace`, async () => {
+		await core.group(`Log into Namespace workspace`, async () => {
 			await ensureNscloudToken();
-			const isDockerLogin = process.env[Env_DockerLogin];
-			const reg = process.env[Env_DockerRegistry];
-			if (isDockerLogin != null && reg != null && isDockerLogin == "1" && reg != "") {
-				return reg;
-			}
-
-			return await dockerLogin();
 		});
+
+		const isDockerLogin = process.env[Env_DockerLogin];
+		let registry = process.env[Env_DockerRegistry];
+		if (isDockerLogin == null || registry == null || isDockerLogin != "1" || registry == "") {
+			registry = await core.group(`Log into Namespace workspace container registry`, async () => {
+				await ensureNscloudToken();
+				return await dockerLogin();
+			});
+		}
 
 		await core.group(`Registry address`, async () => {
 			core.info(registry);
