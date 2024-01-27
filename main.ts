@@ -25,8 +25,8 @@ async function run(): Promise<void> {
 			await ensureNscloudToken();
 		});
 
-		const isDockerLogin = process.env[Env_DockerLogin];
-		let registry = process.env[Env_DockerRegistry];
+		const { isDockerLogin, dockerRegistry } = process.env;
+		let registry = dockerRegistry;
 		if (isDockerLogin == null || registry == null || isDockerLogin != "1" || registry == "") {
 			registry = await core.group(`Log into Namespace workspace container registry`, async () => {
 				await ensureNscloudToken();

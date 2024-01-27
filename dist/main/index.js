@@ -7103,8 +7103,8 @@ function run() {
             yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Log into Namespace workspace`, () => __awaiter(this, void 0, void 0, function* () {
                 yield ensureNscloudToken();
             }));
-            const isDockerLogin = process.env[Env_DockerLogin];
-            let registry = process.env[Env_DockerRegistry];
+            const { isDockerLogin, dockerRegistry } = process.env;
+            let registry = dockerRegistry;
             if (isDockerLogin == null || registry == null || isDockerLogin != "1" || registry == "") {
                 registry = yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Log into Namespace workspace container registry`, () => __awaiter(this, void 0, void 0, function* () {
                     yield ensureNscloudToken();
