@@ -7136,7 +7136,7 @@ function run() {
             const { NSC_DOCKER_LOGIN, NSC_CONTAINER_REGISTRY } = process.env;
             let registry = NSC_CONTAINER_REGISTRY;
             if (NSC_DOCKER_LOGIN == null || registry == null || NSC_DOCKER_LOGIN != "1" || registry == "") {
-                const registry = yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Log into Namespace workspace container registry`, () => __awaiter(this, void 0, void 0, function* () {
+                registry = yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Log into Namespace workspace container registry`, () => __awaiter(this, void 0, void 0, function* () {
                     yield ensureNscloudToken();
                     return yield dockerLogin();
                 }));
