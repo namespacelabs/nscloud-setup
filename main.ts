@@ -25,14 +25,10 @@ async function run(): Promise<void> {
 			await ensureNscloudToken();
 		});
 
-		const { isDockerLogin, dockerRegistry } = process.env;
-		let registry = dockerRegistry;
-		if (isDockerLogin == null || registry == null || isDockerLogin != "1" || registry == "") {
-			registry = await core.group(`Log into Namespace workspace container registry`, async () => {
-				await ensureNscloudToken();
-				return await dockerLogin();
-			});
-		}
+		const registry = await core.group(`Log into Namespace workspace container registry`, async () => {
+			await ensureNscloudToken();
+			return await dockerLogin();
+		});
 
 		await core.group(`Registry address`, async () => {
 			core.info(registry);
