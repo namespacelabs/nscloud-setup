@@ -7122,26 +7122,29 @@ function run() {
             const which = __nccwpck_require__(6143);
             const resolvedOrNull = yield which("nsc", { nothrow: true });
             if (resolvedOrNull == null) {
-                yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Prepare access to Namespace`, () => __awaiter(this, void 0, void 0, function* () {
+                yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group("Prepare access to Namespace", () => __awaiter(this, void 0, void 0, function* () {
                     yield installNsc();
                 }));
             }
             else {
-                _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Namespace Cloud CLI found.`);
+                _actions_core__WEBPACK_IMPORTED_MODULE_0__.info("Namespace Cloud CLI found.");
             }
             yield _actions_exec__WEBPACK_IMPORTED_MODULE_2__.exec("nsc version");
-            yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Log into Namespace workspace`, () => __awaiter(this, void 0, void 0, function* () {
+            yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group("Log into Namespace workspace", () => __awaiter(this, void 0, void 0, function* () {
                 yield ensureNscloudToken();
             }));
             const { NSC_DOCKER_LOGIN, NSC_CONTAINER_REGISTRY } = process.env;
             let registry = NSC_CONTAINER_REGISTRY;
-            if (NSC_DOCKER_LOGIN == null || registry == null || NSC_DOCKER_LOGIN != "1" || registry == "") {
-                registry = yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Log into Namespace workspace container registry`, () => __awaiter(this, void 0, void 0, function* () {
+            if (NSC_DOCKER_LOGIN == null ||
+                registry == null ||
+                NSC_DOCKER_LOGIN !== "1" ||
+                registry === "") {
+                registry = yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group("Log into Namespace workspace container registry", () => __awaiter(this, void 0, void 0, function* () {
                     yield ensureNscloudToken();
                     return yield dockerLogin();
                 }));
             }
-            yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Registry address`, () => __awaiter(this, void 0, void 0, function* () {
+            yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group("Registry address", () => __awaiter(this, void 0, void 0, function* () {
                 _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(registry);
                 _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput("registry-address", registry);
             }));

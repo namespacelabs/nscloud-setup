@@ -10,28 +10,33 @@ async function run(): Promise<void> {
 
 		const resolvedOrNull = await which("nsc", { nothrow: true });
 		if (resolvedOrNull == null) {
-			await core.group(`Prepare access to Namespace`, async () => {
+			await core.group("Prepare access to Namespace", async () => {
 				await installNsc();
 			});
 		} else {
-			core.info(`Namespace Cloud CLI found.`);
+			core.info("Namespace Cloud CLI found.");
 		}
 		await exec.exec("nsc version");
 
-		await core.group(`Log into Namespace workspace`, async () => {
+		await core.group("Log into Namespace workspace", async () => {
 			await ensureNscloudToken();
 		});
 
 		const { NSC_DOCKER_LOGIN, NSC_CONTAINER_REGISTRY } = process.env;
 		let registry = NSC_CONTAINER_REGISTRY;
-		if (NSC_DOCKER_LOGIN == null || registry == null || NSC_DOCKER_LOGIN != "1" || registry == "") {
-			registry = await core.group(`Log into Namespace workspace container registry`, async () => {
+		if (
+			NSC_DOCKER_LOGIN == null ||
+			registry == null ||
+			NSC_DOCKER_LOGIN !== "1" ||
+			registry === ""
+		) {
+			registry = await core.group("Log into Namespace workspace container registry", async () => {
 				await ensureNscloudToken();
 				return await dockerLogin();
 			});
 		}
 
-		await core.group(`Registry address`, async () => {
+		await core.group("Registry address", async () => {
 			core.info(registry);
 			core.setOutput("registry-address", registry);
 		});
