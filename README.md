@@ -3,7 +3,7 @@
 This repository hosts a GitHub action that configures access to Namespace.
 It also installs the [Namespace Cloud](https://cloud.namespace.so) CLI `nsc` in your workflow.
 
-## Example
+## Example with GitHub Runners
 
 ```yaml
 jobs:
@@ -24,10 +24,9 @@ jobs:
           nsc cluster create
 ```
 
-### Using Namespace GitHub Runners
+### Using Namespace Runners
 
-[Namespace GitHub Runners](https://cloud.namespace.so/docs/features/faster-github-actions) are already authenticated with Namespace.
-Hence, no token exchange is needed and `id-token: write` permissions can be skipped.
+Workflows using [Namespace-managed GitHub Runners](https://namespace.so/docs/solutions/github-actions) can typically skip `nscloud-setup`. They are already authenticated with Namespace. On Namespace runners, the action may still be useful to obtain the address of your [private container registry](https://namespace.so/docs/architecture/storage/container-registry).
 
 ```yaml
 jobs:
@@ -40,10 +39,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Configure access to Namespace
+        id: nscloud # Needed to access its outputs
         uses: namespacelabs/nscloud-setup@v0
-      - name: Create an ephemeral cluster
-        run: |
-          nsc cluster create
+        # Run standard Docker's build-push action
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.nscloud.outputs.registry-address }}/path/to/img:v1
+
 ```
 
 ## Requirements
