@@ -3,6 +3,11 @@ description: "Download and configure the Namespace Cloud CLI"
 outputs:
   registry-address:
     description: "Endpoint address of the Namespace Cloud registry."
+inputs:
+  retries:
+    description: "Number of retries for flaky operations (exponential backoff). 0 means no retries."
+    required: false
+    default: "0"
 runs:
   using: node20
   main: dist/main/index.js

@@ -4,14 +4,32 @@ import * as exec from "@actions/exec";
 import * as fs from "fs";
 import * as path from "path";
 
+async function withRetry<T>(name: string, fn: () => Promise<T>, maxRetries: number): Promise<T> {
+	let lastError: Error;
+	for (let attempt = 0; attempt <= maxRetries; attempt++) {
+		try {
+			return await fn();
+		} catch (e) {
+			lastError = e;
+			if (attempt < maxRetries) {
+				const delay = Math.pow(2, attempt);
+				core.warning(`${name} failed (attempt ${attempt + 1}/${maxRetries + 1}), retrying in ${delay}s: ${e.message}`);
+				await new Promise((resolve) => setTimeout(resolve, delay * 1000));
+			}
+		}
+	}
+	throw lastError;
+}
+
 async function run(): Promise<void> {
 	try {
 		const which = require("which");
+		const maxRetries = parseInt(core.getInput("retries") || "0", 10);
 
 		const resolvedOrNull = await which("nsc", { nothrow: true });
 		if (resolvedOrNull == null) {
 			await core.group("Prepare access to Namespace", async () => {
-				await installNsc();
+				await withRetry("installNsc", () => installNsc(), maxRetries);
 			});
 		} else {
 			core.info("Namespace Cloud CLI found.");
@@ -19,7 +37,7 @@ async function run(): Promise<void> {
 		await exec.exec("nsc version");
 
 		await core.group("Log into Namespace workspace", async () => {
-			await ensureNscloudToken();
+			await withRetry("ensureNscloudToken", () => ensureNscloudToken(), maxRetries);
 		});
 
 		const { NSC_DOCKER_LOGIN, NSC_CONTAINER_REGISTRY } = process.env;
@@ -31,8 +49,8 @@ async function run(): Promise<void> {
 			registry === ""
 		) {
 			registry = await core.group("Log into Namespace workspace container registry", async () => {
-				await ensureNscloudToken();
-				return await dockerLogin();
+				await withRetry("ensureNscloudToken", () => ensureNscloudToken(), maxRetries);
+				return await withRetry("dockerLogin", () => dockerLogin(), maxRetries);
 			});
 		}
 
