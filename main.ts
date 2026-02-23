@@ -13,7 +13,7 @@ async function withRetry<T>(name: string, fn: () => Promise<T>, maxRetries: numb
 			lastError = e;
 			if (attempt < maxRetries) {
 				const delay = Math.pow(2, attempt);
-				core.warning(`${name} failed (attempt ${attempt + 1}/${maxRetries + 1}), retrying in ${delay}s: ${e.message}`);
+				core.warning(`${name} failed (attempt ${attempt + 1}/${maxRetries + 1}), retrying in ${delay}s: ${e instanceof Error ? e.message : String(e)}`);
 				await new Promise((resolve) => setTimeout(resolve, delay * 1000));
 			}
 		}
@@ -24,7 +24,7 @@ async function withRetry<T>(name: string, fn: () => Promise<T>, maxRetries: numb
 async function run(): Promise<void> {
 	try {
 		const which = require("which");
-		const maxRetries = parseInt(core.getInput("retries") || "0", 10);
+		const maxRetries = parseInt(core.getInput("retries") || "0", 10) || 0;
 
 		const resolvedOrNull = await which("nsc", { nothrow: true });
 		if (resolvedOrNull == null) {
