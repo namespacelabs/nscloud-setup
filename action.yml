@@ -4,10 +4,10 @@ outputs:
   registry-address:
     description: "Endpoint address of the Namespace Cloud registry."
 inputs:
-  retries:
-    description: "Number of retries for flaky operations (exponential backoff). 0 means no retries."
+  max-attempts:
+    description: "Maximum number of attempts for network operations. 1 means no retries."
     required: false
-    default: "0"
+    default: "3"
 runs:
   using: node20
   main: dist/main/index.js

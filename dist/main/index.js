@@ -7116,18 +7116,18 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
-function withRetry(name, fn, maxRetries) {
+function withRetry(name, fn, maxAttempts) {
     return __awaiter(this, void 0, void 0, function* () {
         let lastError;
-        for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
             try {
                 return yield fn();
             }
             catch (e) {
                 lastError = e;
-                if (attempt < maxRetries) {
-                    const delay = Math.pow(2, attempt);
-                    _actions_core__WEBPACK_IMPORTED_MODULE_0__.warning(`${name} failed (attempt ${attempt + 1}/${maxRetries + 1}), retrying in ${delay}s: ${e instanceof Error ? e.message : String(e)}`);
+                if (attempt < maxAttempts) {
+                    const delay = Math.pow(2, attempt - 1);
+                    _actions_core__WEBPACK_IMPORTED_MODULE_0__.warning(`${name} failed (attempt ${attempt}/${maxAttempts}), retrying in ${delay}s: ${e instanceof Error ? e.message : String(e)}`);
                     yield new Promise((resolve) => setTimeout(resolve, delay * 1000));
                 }
             }
@@ -7139,11 +7139,11 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const which = __nccwpck_require__(6143);
-            const maxRetries = parseInt(_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput("retries") || "0", 10) || 0;
+            const maxAttempts = Math.max(1, parseInt(_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput("max-attempts") || "1", 10) || 1);
             const resolvedOrNull = yield which("nsc", { nothrow: true });
             if (resolvedOrNull == null) {
                 yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group("Prepare access to Namespace", () => __awaiter(this, void 0, void 0, function* () {
-                    yield withRetry("installNsc", () => installNsc(), maxRetries);
+                    yield withRetry("installNsc", () => installNsc(), maxAttempts);
                 }));
             }
             else {
@@ -7151,7 +7151,7 @@ function run() {
             }
             yield _actions_exec__WEBPACK_IMPORTED_MODULE_2__.exec("nsc version");
             yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group("Log into Namespace workspace", () => __awaiter(this, void 0, void 0, function* () {
-                yield withRetry("ensureNscloudToken", () => ensureNscloudToken(), maxRetries);
+                yield withRetry("ensureNscloudToken", () => ensureNscloudToken(), maxAttempts);
             }));
             const { NSC_DOCKER_LOGIN, NSC_CONTAINER_REGISTRY } = process.env;
             let registry = NSC_CONTAINER_REGISTRY;
@@ -7160,8 +7160,8 @@ function run() {
                 NSC_DOCKER_LOGIN !== "1" ||
                 registry === "") {
                 registry = yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group("Log into Namespace workspace container registry", () => __awaiter(this, void 0, void 0, function* () {
-                    yield withRetry("ensureNscloudToken", () => ensureNscloudToken(), maxRetries);
-                    return yield withRetry("dockerLogin", () => dockerLogin(), maxRetries);
+                    yield withRetry("ensureNscloudToken", () => ensureNscloudToken(), maxAttempts);
+                    return yield withRetry("dockerLogin", () => dockerLogin(), maxAttempts);
                 }));
             }
             yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group("Registry address", () => __awaiter(this, void 0, void 0, function* () {
