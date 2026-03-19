@@ -9,5 +9,5 @@ inputs:
     required: false
     default: "3"
 runs:
-  using: node20
+  using: node24
   main: dist/main/index.js
